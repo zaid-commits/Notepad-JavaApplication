@@ -1,72 +1,58 @@
-
-// Java Program to create a text editor using java
-// import java.awt.*;
+import java.awt.*;
+import java.awt.event.*;
 import javax.swing.*;
 import java.io.*;
-import java.awt.event.*;
-import javax.swing.plaf.metal.*;
-// import javax.swing.text.*;
+import javax.swing.UIManager;
 
-class Notepad extends JFrame implements ActionListener {
-    // Text component
+public class Notepad extends JFrame implements ActionListener {
     JTextArea t;
-
-    // Frame
     JFrame f;
 
-    // Constructor
     Notepad() {
-        // Create a frame
         f = new JFrame("Notepad By Zaid & Sameeh");
 
         try {
-            // Set metal look and feel
-            UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-
-            // Set theme to ocean
-            MetalLookAndFeel.setCurrentTheme(new OceanTheme());
+            UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        // Text component
         t = new JTextArea();
 
-        // Create a menubar
         JMenuBar mb = new JMenuBar();
-
-        // Create a menu for File
         JMenu m1 = new JMenu("File");
-
-        // Create menu items
         JMenuItem mi1 = new JMenuItem("New");
         JMenuItem mi2 = new JMenuItem("Open");
         JMenuItem mi3 = new JMenuItem("Save");
         JMenuItem mi9 = new JMenuItem("Print");
 
-        // Add action listener
         mi1.addActionListener(this);
         mi2.addActionListener(this);
         mi3.addActionListener(this);
         mi9.addActionListener(this);
+
+        setButtonPreferredSize(mi1);
+        setButtonPreferredSize(mi2);
+        setButtonPreferredSize(mi3);
+        setButtonPreferredSize(mi9);
 
         m1.add(mi1);
         m1.add(mi2);
         m1.add(mi3);
         m1.add(mi9);
 
-        // Create a menu for Edit
         JMenu m2 = new JMenu("Edit");
-
-        // Create menu items
         JMenuItem mi4 = new JMenuItem("Cut");
         JMenuItem mi5 = new JMenuItem("Copy");
         JMenuItem mi6 = new JMenuItem("Paste");
 
-        // Add action listener
         mi4.addActionListener(this);
         mi5.addActionListener(this);
         mi6.addActionListener(this);
+
+        setButtonPreferredSize(mi4);
+        setButtonPreferredSize(mi5);
+        setButtonPreferredSize(mi6);
 
         m2.add(mi4);
         m2.add(mi5);
@@ -74,20 +60,58 @@ class Notepad extends JFrame implements ActionListener {
 
         JMenuItem mc = new JMenuItem("Close");
         mc.addActionListener(this);
+        setButtonPreferredSize(mc);
+
+        // Add a background changing button
+        JMenuItem changeBgButton = new JMenuItem("Change Background");
+        changeBgButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                Color bgColor = JColorChooser.showDialog(null, "Choose Background Color", t.getBackground());
+                if (bgColor != null) {
+                    t.setBackground(bgColor);
+                }
+            }
+        });
+        setButtonPreferredSize(changeBgButton);
+
+        // Add a font style changing button
+        JMenuItem changeFontButton = new JMenuItem("Change Font Style");
+        changeFontButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                String[] fontStyleValues = { "PLAIN", "BOLD", "ITALIC" };
+                String selectedFontStyle = (String) JOptionPane.showInputDialog(null, "Choose Font Style",
+                        "Font Style", JOptionPane.PLAIN_MESSAGE, null, fontStyleValues, fontStyleValues[0]);
+                if (selectedFontStyle != null) {
+                    int style = Font.PLAIN;
+                    if (selectedFontStyle.equals("BOLD")) {
+                        style = Font.BOLD;
+                    } else if (selectedFontStyle.equals("ITALIC")) {
+                        style = Font.ITALIC;
+                    }
+                    t.setFont(new Font(t.getFont().getName(), style, t.getFont().getSize()));
+                }
+            }
+        });
+        setButtonPreferredSize(changeFontButton);
 
         mb.add(m1);
         mb.add(m2);
+        mb.add(changeBgButton);
+        mb.add(changeFontButton);
         mb.add(mc);
 
         f.setJMenuBar(mb);
         f.add(t);
-        // f.setSize(500, 500);
         f.setSize(600, 500);
         f.setLocationRelativeTo(null);
         f.setVisible(true);
     }
 
-    // If a button is pressed
+    private void setButtonPreferredSize(AbstractButton button) {
+        Dimension dim = new Dimension(120, button.getPreferredSize().height);
+        button.setPreferredSize(dim);
+    }
+
     public void actionPerformed(ActionEvent e) {
         String s = e.getActionCommand();
 
@@ -98,21 +122,13 @@ class Notepad extends JFrame implements ActionListener {
         } else if (s.equals("Paste")) {
             t.paste();
         } else if (s.equals("Save")) {
-            // Create an object of JFileChooser class
             JFileChooser j = new JFileChooser("f:");
-
-            // Invoke the showsSaveDialog function to show the save dialog
             int r = j.showSaveDialog(null);
-
             if (r == JFileChooser.APPROVE_OPTION) {
-                // Set the label to the path of the selected directory
                 File fi = new File(j.getSelectedFile().getAbsolutePath());
-
-                try (FileWriter wr = new FileWriter(fi, false);
-                     BufferedWriter w = new BufferedWriter(wr)) {
-                    // Write
+                try (FileWriter wr = new FileWriter(fi, false); BufferedWriter w = new BufferedWriter(wr)) {
                     w.write(t.getText());
-                } catch (IOException evt) {
+                } catch (Exception evt) {
                     JOptionPane.showMessageDialog(f, evt.getMessage());
                 }
             } else {
@@ -120,32 +136,23 @@ class Notepad extends JFrame implements ActionListener {
             }
         } else if (s.equals("Print")) {
             try {
-                // Print the file
                 t.print();
             } catch (Exception evt) {
                 JOptionPane.showMessageDialog(f, evt.getMessage());
             }
         } else if (s.equals("Open")) {
-            // Create an object of JFileChooser class
             JFileChooser j = new JFileChooser("f:");
-
-            // Invoke the showsOpenDialog function to show the save dialog
             int r = j.showOpenDialog(null);
-
-            // If the user selects a file
             if (r == JFileChooser.APPROVE_OPTION) {
-                // Set the label to the path of the selected directory
                 File fi = new File(j.getSelectedFile().getAbsolutePath());
-
-                try (FileReader fr = new FileReader(fi);
-                     BufferedReader br = new BufferedReader(fr)) {
+                try (FileReader fr = new FileReader(fi); BufferedReader br = new BufferedReader(fr)) {
                     StringBuilder sb = new StringBuilder();
                     String line;
                     while ((line = br.readLine()) != null) {
                         sb.append(line).append("\n");
                     }
                     t.setText(sb.toString());
-                } catch (IOException evt) {
+                } catch (Exception evt) {
                     JOptionPane.showMessageDialog(f, evt.getMessage());
                 }
             } else {
@@ -158,7 +165,6 @@ class Notepad extends JFrame implements ActionListener {
         }
     }
 
-    // Main class
     public static void main(String args[]) {
         new Notepad();
     }
