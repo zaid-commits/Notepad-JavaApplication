@@ -2,7 +2,6 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.io.*;
-import javax.swing.UIManager;
 
 public class Notepad extends JFrame implements ActionListener {
     JTextArea t;
@@ -10,14 +9,14 @@ public class Notepad extends JFrame implements ActionListener {
 
     Notepad() {
         f = new JFrame("Notepad By Zaid & Sameeh");
-
         try {
-            UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         t = new JTextArea();
+        t.setBackground(Color.LIGHT_GRAY);
 
         JMenuBar mb = new JMenuBar();
         JMenu m1 = new JMenu("File");
@@ -58,11 +57,18 @@ public class Notepad extends JFrame implements ActionListener {
         m2.add(mi5);
         m2.add(mi6);
 
+        JMenuItem mi7 = new JMenuItem("Select All");
+        mi7.addActionListener(this);
+        setButtonPreferredSize(mi7);
+        m2.add(mi7);
+
+        mb.add(m1);
+        mb.add(m2);
+
         JMenuItem mc = new JMenuItem("Close");
         mc.addActionListener(this);
         setButtonPreferredSize(mc);
 
-        // Add a background changing button
         JMenuItem changeBgButton = new JMenuItem("Change Background");
         changeBgButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -74,7 +80,6 @@ public class Notepad extends JFrame implements ActionListener {
         });
         setButtonPreferredSize(changeBgButton);
 
-        // Add a font style changing button
         JMenuItem changeFontButton = new JMenuItem("Change Font Style");
         changeFontButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -94,15 +99,44 @@ public class Notepad extends JFrame implements ActionListener {
         });
         setButtonPreferredSize(changeFontButton);
 
+        JMenuItem changeFontFamilyButton = new JMenuItem("Change Font Family");
+        changeFontFamilyButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                String[] fontNames = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
+                String selectedFont = (String) JOptionPane.showInputDialog(null, "Choose Font Family",
+                        "Font Family", JOptionPane.PLAIN_MESSAGE, null, fontNames, fontNames[0]);
+                if (selectedFont != null) {
+                    t.setFont(new Font(selectedFont, t.getFont().getStyle(), t.getFont().getSize()));
+                }
+            }
+        });
+        setButtonPreferredSize(changeFontFamilyButton);
+
         mb.add(m1);
         mb.add(m2);
         mb.add(changeBgButton);
         mb.add(changeFontButton);
+        mb.add(changeFontFamilyButton);
         mb.add(mc);
+
+        // Set the background color of the JMenu to dark gray
+        UIManager.put("Menu.background", Color.DARK_GRAY);
+        // Set the foreground color of the JMenu to white
+        UIManager.put("Menu.foreground", Color.WHITE);
+
+        // Set the foreground color of the menu items to white
+        mi1.setForeground(Color.WHITE);
+        mi2.setForeground(Color.WHITE);
+        mi3.setForeground(Color.WHITE);
+        mi4.setForeground(Color.WHITE);
+        mi5.setForeground(Color.WHITE);
+        mi6.setForeground(Color.WHITE);
+        mi7.setForeground(Color.WHITE);
+        mi9.setForeground(Color.WHITE);
 
         f.setJMenuBar(mb);
         f.add(t);
-        f.setSize(600, 500);
+        f.setSize(710, 450);
         f.setLocationRelativeTo(null);
         f.setVisible(true);
     }
@@ -110,6 +144,14 @@ public class Notepad extends JFrame implements ActionListener {
     private void setButtonPreferredSize(AbstractButton button) {
         Dimension dim = new Dimension(120, button.getPreferredSize().height);
         button.setPreferredSize(dim);
+        button.setFont(new Font("Arial", Font.BOLD, 12));
+        button.setBorderPainted(true);
+        button.setForeground(Color.WHITE);
+        button.setBackground(Color.DARK_GRAY); // Dark gray background color
+        button.setFocusPainted(true);
+        button.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        button.setOpaque(true);
+        button.repaint();
     }
 
     public void actionPerformed(ActionEvent e) {
