@@ -70,44 +70,38 @@ public class Notepad extends JFrame implements ActionListener {
         setButtonPreferredSize(mc);
 
         JMenuItem changeBgButton = new JMenuItem("Change Background");
-        changeBgButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                Color bgColor = JColorChooser.showDialog(null, "Choose Background Color", t.getBackground());
-                if (bgColor != null) {
-                    t.setBackground(bgColor);
-                }
+        changeBgButton.addActionListener(e -> {
+            Color bgColor = JColorChooser.showDialog(null, "Choose Background Color", t.getBackground());
+            if (bgColor != null) {
+                t.setBackground(bgColor);
             }
         });
         setButtonPreferredSize(changeBgButton);
 
         JMenuItem changeFontButton = new JMenuItem("Change Font Style");
-        changeFontButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                String[] fontStyleValues = { "PLAIN", "BOLD", "ITALIC" };
-                String selectedFontStyle = (String) JOptionPane.showInputDialog(null, "Choose Font Style",
-                        "Font Style", JOptionPane.PLAIN_MESSAGE, null, fontStyleValues, fontStyleValues[0]);
-                if (selectedFontStyle != null) {
-                    int style = Font.PLAIN;
-                    if (selectedFontStyle.equals("BOLD")) {
-                        style = Font.BOLD;
-                    } else if (selectedFontStyle.equals("ITALIC")) {
-                        style = Font.ITALIC;
-                    }
-                    t.setFont(new Font(t.getFont().getName(), style, t.getFont().getSize()));
+        changeFontButton.addActionListener(e -> {
+            String[] fontStyleValues = { "PLAIN", "BOLD", "ITALIC" };
+            String selectedFontStyle = (String) JOptionPane.showInputDialog(null, "Choose Font Style",
+                    "Font Style", JOptionPane.PLAIN_MESSAGE, null, fontStyleValues, fontStyleValues[0]);
+            if (selectedFontStyle != null) {
+                int style = Font.PLAIN;
+                if (selectedFontStyle.equals("BOLD")) {
+                    style = Font.BOLD;
+                } else if (selectedFontStyle.equals("ITALIC")) {
+                    style = Font.ITALIC;
                 }
+                t.setFont(new Font(t.getFont().getName(), style, t.getFont().getSize()));
             }
         });
         setButtonPreferredSize(changeFontButton);
 
         JMenuItem changeFontFamilyButton = new JMenuItem("Change Font Family");
-        changeFontFamilyButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                String[] fontNames = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
-                String selectedFont = (String) JOptionPane.showInputDialog(null, "Choose Font Family",
-                        "Font Family", JOptionPane.PLAIN_MESSAGE, null, fontNames, fontNames[0]);
-                if (selectedFont != null) {
-                    t.setFont(new Font(selectedFont, t.getFont().getStyle(), t.getFont().getSize()));
-                }
+        changeFontFamilyButton.addActionListener(e -> {
+            String[] fontNames = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
+            String selectedFont = (String) JOptionPane.showInputDialog(null, "Choose Font Family",
+                    "Font Family", JOptionPane.PLAIN_MESSAGE, null, fontNames, fontNames[0]);
+            if (selectedFont != null) {
+                t.setFont(new Font(selectedFont, t.getFont().getStyle(), t.getFont().getSize()));
             }
         });
         setButtonPreferredSize(changeFontFamilyButton);
