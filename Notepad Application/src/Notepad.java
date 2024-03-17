@@ -156,6 +156,7 @@ public class Notepad extends JFrame implements ActionListener {
             case "Cut" -> t.cut();
             case "Copy" -> t.copy();
             case "Paste" -> t.paste();
+            case "Select All" -> selectAll();
             case "Save" -> {
                 JFileChooser j = new JFileChooser("f:");
                 int r = j.showSaveDialog(null);
@@ -200,6 +201,15 @@ public class Notepad extends JFrame implements ActionListener {
 
             // Application continues to run, should be System.exit() ?
             case "Close" -> f.setVisible(false);
+        }
+    }
+
+    private void selectAll() {
+        t.requestFocusInWindow();
+        int textLength = t.getDocument().getLength();
+        if (textLength > 0) {
+            t.setCaretPosition(0);
+            t.moveCaretPosition(textLength);
         }
     }
 
