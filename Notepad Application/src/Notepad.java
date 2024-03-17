@@ -1,22 +1,49 @@
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.io.*;
 
 public class Notepad extends JFrame implements ActionListener {
     JTextArea t;
     JFrame f;
 
+    private boolean textChanged = false;
+
     Notepad() {
-        f = new JFrame("Notepad By Zaid & Sameeh");
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
             e.printStackTrace();
         }
 
+        f = new JFrame("Notepad By Zaid & Sameeh");
+        f.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                onClose();
+            }
+        });
+
         t = new JTextArea();
         t.setBackground(Color.LIGHT_GRAY);
+        t.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                textChanged = true;
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                textChanged = true;
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                // ignored for now
+            }
+        });
 
         JMenuBar mb = new JMenuBar();
         JMenu m1 = new JMenu("File");
@@ -131,7 +158,7 @@ public class Notepad extends JFrame implements ActionListener {
         f.setJMenuBar(mb);
         f.add(new JScrollPane(t));
         f.setSize(710, 450);
-        f.setDefaultCloseOperation(EXIT_ON_CLOSE);
+        f.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         f.setLocationRelativeTo(null);
         f.setVisible(true);
     }
@@ -150,67 +177,116 @@ public class Notepad extends JFrame implements ActionListener {
     }
 
     public void actionPerformed(ActionEvent e) {
-        String s = e.getActionCommand();
-
-        switch (s) {
+        switch (e.getActionCommand()) {
             case "Cut" -> t.cut();
             case "Copy" -> t.copy();
             case "Paste" -> t.paste();
-            case "Select All" -> selectAll();
-            case "Save" -> {
-                JFileChooser j = new JFileChooser("f:");
-                int r = j.showSaveDialog(null);
-                if (r == JFileChooser.APPROVE_OPTION) {
-                    File fi = new File(j.getSelectedFile().getAbsolutePath());
-                    try (FileWriter wr = new FileWriter(fi, false); BufferedWriter w = new BufferedWriter(wr)) {
-                        w.write(t.getText());
-                    } catch (Exception evt) {
-                        JOptionPane.showMessageDialog(f, evt.getMessage());
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(f, "The user cancelled the operation");
-                }
-            }
-            case "Print" -> {
-                try {
-                    t.print();
-                } catch (Exception evt) {
-                    JOptionPane.showMessageDialog(f, evt.getMessage());
-                }
-            }
-            case "Open" -> {
-                JFileChooser j = new JFileChooser("f:");
-                int r = j.showOpenDialog(null);
-                if (r == JFileChooser.APPROVE_OPTION) {
-                    File fi = new File(j.getSelectedFile().getAbsolutePath());
-                    try (FileReader fr = new FileReader(fi); BufferedReader br = new BufferedReader(fr)) {
-                        StringBuilder sb = new StringBuilder();
-                        String line;
-                        while ((line = br.readLine()) != null) {
-                            sb.append(line).append("\n");
-                        }
-                        t.setText(sb.toString());
-                    } catch (Exception evt) {
-                        JOptionPane.showMessageDialog(f, evt.getMessage());
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(f, "The user cancelled the operation");
-                }
-            }
-            case "New" -> t.setText("");
-
-            // Application continues to run, should be System.exit() ?
-            case "Close" -> f.setVisible(false);
+            case "Select All" -> onSelectAll();
+            case "Save" -> onSave();
+            case "Print" -> onPrint();
+            case "Open" -> onOpen();
+            case "New" -> onNew();
+            case "Close" -> onClose();
         }
     }
 
-    private void selectAll() {
+    private void onClose() {
+        if (textChanged) {
+            switch (askAboutUnsavedChanges()) {
+                case JOptionPane.CLOSED_OPTION, JOptionPane.CANCEL_OPTION -> {}
+                case JOptionPane.YES_OPTION -> {
+                    // Leave frame open if text was not saved for some reason
+                    if (!onSave())
+                        return;
+
+                    f.dispose();
+                }
+                case JOptionPane.NO_OPTION -> f.dispose();
+            }
+        }
+        else
+            f.dispose();
+    }
+
+    /**
+     * @return {@code true} if file was saved successfully, {@code false} if not
+     */
+    private boolean onSave() {
+        JFileChooser j = new JFileChooser("f:");
+        int r = j.showSaveDialog(null);
+        if (r == JFileChooser.APPROVE_OPTION) {
+            File fi = new File(j.getSelectedFile().getAbsolutePath());
+            try (FileWriter wr = new FileWriter(fi, false); BufferedWriter w = new BufferedWriter(wr)) {
+                w.write(t.getText());
+                textChanged = false;
+                return true;
+            } catch (Exception evt) {
+                JOptionPane.showMessageDialog(f, evt.getMessage());
+            }
+        }
+
+        return false;
+    }
+
+    private void onPrint() {
+        try {
+            t.print();
+        } catch (Exception evt) {
+            JOptionPane.showMessageDialog(f, evt.getMessage());
+        }
+    }
+
+    private void onSelectAll() {
         t.requestFocusInWindow();
         int textLength = t.getDocument().getLength();
         if (textLength > 0) {
             t.setCaretPosition(0);
             t.moveCaretPosition(textLength);
         }
+    }
+
+    private void onOpen() {
+        JFileChooser j = new JFileChooser("f:");
+        int r = j.showOpenDialog(null);
+        if (r == JFileChooser.APPROVE_OPTION) {
+            File fi = new File(j.getSelectedFile().getAbsolutePath());
+            try (FileReader fr = new FileReader(fi); BufferedReader br = new BufferedReader(fr)) {
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while ((line = br.readLine()) != null) {
+                    sb.append(line).append("\n");
+                }
+                t.setText(sb.toString());
+            } catch (Exception evt) {
+                JOptionPane.showMessageDialog(f, evt.getMessage());
+            }
+        }
+    }
+
+    private void onNew() {
+        if (textChanged) {
+            switch (askAboutUnsavedChanges()) {
+                case JOptionPane.CLOSED_OPTION, JOptionPane.CANCEL_OPTION -> { return; }
+                case JOptionPane.YES_OPTION -> {
+                    if (!onSave())
+                        return;
+                }
+            }
+        }
+
+        t.setText("");
+        textChanged = false;
+    }
+
+    /**
+     * Fires dialog window when current text is not saved
+     */
+    private int askAboutUnsavedChanges() {
+        return JOptionPane.showConfirmDialog(
+                f,
+                "New file has been modified, save changes?",
+                "Save changes?",
+                JOptionPane.YES_NO_CANCEL_OPTION);
     }
 
     public static void main(String[] args) {
