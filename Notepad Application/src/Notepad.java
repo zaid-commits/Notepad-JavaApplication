@@ -4,6 +4,8 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class Notepad extends JFrame implements ActionListener {
     JTextArea t;
@@ -92,10 +94,6 @@ public class Notepad extends JFrame implements ActionListener {
         mb.add(m1);
         mb.add(m2);
 
-        JMenuItem mc = new JMenuItem("Close");
-        mc.addActionListener(this);
-        setButtonPreferredSize(mc);
-
         JMenuItem changeBgButton = new JMenuItem("Change Background");
         changeBgButton.addActionListener(e -> {
             Color bgColor = JColorChooser.showDialog(null, "Choose Background Color", t.getBackground());
@@ -138,24 +136,18 @@ public class Notepad extends JFrame implements ActionListener {
         mb.add(changeBgButton);
         mb.add(changeFontButton);
         mb.add(changeFontFamilyButton);
-        mb.add(mc);
 
-        // Set the background color of the JMenu to dark gray
-        UIManager.put("Menu.background", Color.DARK_GRAY);
-        // Set the foreground color of the JMenu to white
-        UIManager.put("Menu.foreground", Color.WHITE);
+        JMenuItem aboutUsMenuItem = new JMenuItem("About Us");
+        aboutUsMenuItem.addActionListener(e -> {
+            showAboutUsDialog();
+        });
+        setButtonPreferredSize(aboutUsMenuItem);
+        // Add the "About Us" button to the menu bar
+        mb.add(aboutUsMenuItem);
 
-        // Set the foreground color of the menu items to white
-        mi1.setForeground(Color.WHITE);
-        mi2.setForeground(Color.WHITE);
-        mi3.setForeground(Color.WHITE);
-        mi4.setForeground(Color.WHITE);
-        mi5.setForeground(Color.WHITE);
-        mi6.setForeground(Color.WHITE);
-        mi7.setForeground(Color.WHITE);
-        mi9.setForeground(Color.WHITE);
-
+        // Set the menu bar
         f.setJMenuBar(mb);
+
         f.add(new JScrollPane(t));
         f.setSize(710, 450);
         f.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -193,7 +185,8 @@ public class Notepad extends JFrame implements ActionListener {
     private void onClose() {
         if (textChanged) {
             switch (askAboutUnsavedChanges()) {
-                case JOptionPane.CLOSED_OPTION, JOptionPane.CANCEL_OPTION -> {}
+                case JOptionPane.CLOSED_OPTION, JOptionPane.CANCEL_OPTION -> {
+                }
                 case JOptionPane.YES_OPTION -> {
                     // Leave frame open if text was not saved for some reason
                     if (!onSave())
@@ -203,8 +196,7 @@ public class Notepad extends JFrame implements ActionListener {
                 }
                 case JOptionPane.NO_OPTION -> f.dispose();
             }
-        }
-        else
+        } else
             f.dispose();
     }
 
@@ -266,7 +258,9 @@ public class Notepad extends JFrame implements ActionListener {
     private void onNew() {
         if (textChanged) {
             switch (askAboutUnsavedChanges()) {
-                case JOptionPane.CLOSED_OPTION, JOptionPane.CANCEL_OPTION -> { return; }
+                case JOptionPane.CLOSED_OPTION, JOptionPane.CANCEL_OPTION -> {
+                    return;
+                }
                 case JOptionPane.YES_OPTION -> {
                     if (!onSave())
                         return;
@@ -287,6 +281,32 @@ public class Notepad extends JFrame implements ActionListener {
                 "New file has been modified, save changes?",
                 "Save changes?",
                 JOptionPane.YES_NO_CANCEL_OPTION);
+    }
+
+    private void showAboutUsDialog() {
+        String message = "<html>" +
+                "Made with ❤️ by Zaid and Team<br><br>" +
+                "Copyright @2024-2025<br>" +
+                "This project is under GitHub's MIT License.<br><br>" +
+                "The Product is available for fair use<br><br>" +
+                "Illegal Use of Product can lead to Copyright Infringements<br><br>" +
+                "This Product is Open Source on Github feel free to contribute<br><br><br>" +
+                "<a href=\"https://github.com/zaid-commits/Notepad-JavaApplication\">Contribute on GitHub</a></html>";
+
+        JLabel label = new JLabel("<html>" + message + "</html>");
+        label.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        label.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                try {
+                    Desktop.getDesktop().browse(new URI("https://github.com/zaid-commits/Notepad-JavaApplication"));
+                } catch (IOException | URISyntaxException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+
+        JOptionPane.showMessageDialog(f, label, "About Us", JOptionPane.INFORMATION_MESSAGE);
     }
 
     public static void main(String[] args) {
