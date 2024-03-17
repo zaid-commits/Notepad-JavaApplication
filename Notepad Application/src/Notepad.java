@@ -131,6 +131,7 @@ public class Notepad extends JFrame implements ActionListener {
         f.setJMenuBar(mb);
         f.add(t);
         f.setSize(710, 450);
+        f.setDefaultCloseOperation(EXIT_ON_CLOSE);
         f.setLocationRelativeTo(null);
         f.setVisible(true);
     }
@@ -196,6 +197,8 @@ public class Notepad extends JFrame implements ActionListener {
                 }
             }
             case "New" -> t.setText("");
+
+            // Application continues to run, should be System.exit() ?
             case "Close" -> f.setVisible(false);
         }
     }
