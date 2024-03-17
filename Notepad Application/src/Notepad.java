@@ -157,57 +157,56 @@ public class Notepad extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         String s = e.getActionCommand();
 
-        if (s.equals("Cut")) {
-            t.cut();
-        } else if (s.equals("Copy")) {
-            t.copy();
-        } else if (s.equals("Paste")) {
-            t.paste();
-        } else if (s.equals("Save")) {
-            JFileChooser j = new JFileChooser("f:");
-            int r = j.showSaveDialog(null);
-            if (r == JFileChooser.APPROVE_OPTION) {
-                File fi = new File(j.getSelectedFile().getAbsolutePath());
-                try (FileWriter wr = new FileWriter(fi, false); BufferedWriter w = new BufferedWriter(wr)) {
-                    w.write(t.getText());
-                } catch (Exception evt) {
-                    JOptionPane.showMessageDialog(f, evt.getMessage());
-                }
-            } else {
-                JOptionPane.showMessageDialog(f, "The user cancelled the operation");
-            }
-        } else if (s.equals("Print")) {
-            try {
-                t.print();
-            } catch (Exception evt) {
-                JOptionPane.showMessageDialog(f, evt.getMessage());
-            }
-        } else if (s.equals("Open")) {
-            JFileChooser j = new JFileChooser("f:");
-            int r = j.showOpenDialog(null);
-            if (r == JFileChooser.APPROVE_OPTION) {
-                File fi = new File(j.getSelectedFile().getAbsolutePath());
-                try (FileReader fr = new FileReader(fi); BufferedReader br = new BufferedReader(fr)) {
-                    StringBuilder sb = new StringBuilder();
-                    String line;
-                    while ((line = br.readLine()) != null) {
-                        sb.append(line).append("\n");
+        switch (s) {
+            case "Cut" -> t.cut();
+            case "Copy" -> t.copy();
+            case "Paste" -> t.paste();
+            case "Save" -> {
+                JFileChooser j = new JFileChooser("f:");
+                int r = j.showSaveDialog(null);
+                if (r == JFileChooser.APPROVE_OPTION) {
+                    File fi = new File(j.getSelectedFile().getAbsolutePath());
+                    try (FileWriter wr = new FileWriter(fi, false); BufferedWriter w = new BufferedWriter(wr)) {
+                        w.write(t.getText());
+                    } catch (Exception evt) {
+                        JOptionPane.showMessageDialog(f, evt.getMessage());
                     }
-                    t.setText(sb.toString());
+                } else {
+                    JOptionPane.showMessageDialog(f, "The user cancelled the operation");
+                }
+            }
+            case "Print" -> {
+                try {
+                    t.print();
                 } catch (Exception evt) {
                     JOptionPane.showMessageDialog(f, evt.getMessage());
                 }
-            } else {
-                JOptionPane.showMessageDialog(f, "The user cancelled the operation");
             }
-        } else if (s.equals("New")) {
-            t.setText("");
-        } else if (s.equals("Close")) {
-            f.setVisible(false);
+            case "Open" -> {
+                JFileChooser j = new JFileChooser("f:");
+                int r = j.showOpenDialog(null);
+                if (r == JFileChooser.APPROVE_OPTION) {
+                    File fi = new File(j.getSelectedFile().getAbsolutePath());
+                    try (FileReader fr = new FileReader(fi); BufferedReader br = new BufferedReader(fr)) {
+                        StringBuilder sb = new StringBuilder();
+                        String line;
+                        while ((line = br.readLine()) != null) {
+                            sb.append(line).append("\n");
+                        }
+                        t.setText(sb.toString());
+                    } catch (Exception evt) {
+                        JOptionPane.showMessageDialog(f, evt.getMessage());
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(f, "The user cancelled the operation");
+                }
+            }
+            case "New" -> t.setText("");
+            case "Close" -> f.setVisible(false);
         }
     }
 
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         new Notepad();
     }
 }
