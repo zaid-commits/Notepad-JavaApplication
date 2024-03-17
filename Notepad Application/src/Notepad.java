@@ -129,7 +129,7 @@ public class Notepad extends JFrame implements ActionListener {
         mi9.setForeground(Color.WHITE);
 
         f.setJMenuBar(mb);
-        f.add(t);
+        f.add(new JScrollPane(t));
         f.setSize(710, 450);
         f.setDefaultCloseOperation(EXIT_ON_CLOSE);
         f.setLocationRelativeTo(null);
